@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Hey There Welcome!</h1>
+    <form action="/" method="post">
+        <label for="task">Task </label>
+        <input type="text" name="task" id="task">
+        <button>Submit</button>
+    </form>
+    <br>
+    <br>
+    <div>
+      <ul>
+          <% for(x of List) { %> 
+            <li>Task:<%=x.task %> <b><%= x.id %> </b></li>
+            <% } %> 
+      </ul>
+  </div>
+  <a href="/todo">Todo</a>
+
+</body>
+</html>
