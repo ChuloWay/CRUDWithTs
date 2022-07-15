@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit</title>
+</head>
+<body>
+    <h1>Edit Task!</h1>
+    <form action="/todo/<%=x.id%>/edit" method="post">
+        <label for="task">Task </label>
+        <input type="text" name="task" id="task" placeholder="<%=x.task%>">
+        <button>Submit</button>
+    </form>
+    <br>
+    <br>
+  <a href="/todo">Todo</a>
+
+</body>
+</html>

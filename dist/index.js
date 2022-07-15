@@ -21,17 +21,15 @@ app.post("/", (req, res) => {
     id = id + 1;
     const { task } = req.body;
     List.push({ id, task });
-    res.redirect("/todo");
+    res.redirect("/");
 });
+app.post("/:id", (req, res) => );
 app.get("/todo", (req, res) => {
     res.render("todo", { List });
 });
-app.get("/todo/:id", (req, res) => {
-    res.render("show", { List });
-});
-app.post("/todo/:id", (req, res) => {
-    List = List.filter(x => x.id == null);
-    res.redirect('/');
+app.post("/todo", (req, res) => {
+    let List = [];
+    res.redirect("/");
 });
 app.listen(port, () => {
     console.log(`Started Server On port ${port}`);
