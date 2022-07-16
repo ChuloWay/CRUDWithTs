@@ -14,6 +14,8 @@ let List: any[] = [{
 }];
 let id: number = 0
 
+// will add mongo as db
+
 app.get("/", (req: Request, res: Response) => {
   res.render("index", { List });
 });
@@ -26,7 +28,7 @@ app.post("/", (req: Request, res: Response) => {
 });
 
 app.post("/:id", (req: Request, res: Response) =>{
-    
+
 } )
 
 app.get("/todo", (req: Request, res: Response) => {
