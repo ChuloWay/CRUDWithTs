@@ -79,35 +79,35 @@ app.get("/todo/:id/edit", async(req: Request, res: Response) => {
 });
 
 
-app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
-    const { id } = req.params;
-    await User.findByIdAndUpdate(id, {$set: req.body.todo});
-    await User.save();
-    res.redirect("/todo");
-});
-
-
 // app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
 //     const { id } = req.params;
-//     return User.findById(id)
-//     .then((user) => {
-//         if(user){
-//             user.set(req.body.todo)
-
-//             return user
-//                 .save()
-//                 .then((user)=> res.status(200).json({user}))
-//                 .catch((error)=> res.status(400).json({ error }))
-//         }
-//         else{
-//             res.status(404).json({ message: 'Not Found'})
-//         }
-//     })
-//     .catch((error)=>{
-//         res.status(500).json({error})
-//     })
+//     await User.findByIdAndUpdate(id, {$set: req.body.todo});
+//     await User.save();
 //     res.redirect("/todo");
 // });
+
+
+app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
+    const { id } = req.params;
+    return User.findById(id)
+    .then((user) => {
+        if(user){
+            user.set(req.body.todo)
+
+            return user
+                .save()
+                .then((user)=> res.status(200).json({user}))
+                .catch((error)=> res.status(400).json({ error }))
+        }
+        else{
+            res.status(404).json({ message: 'Not Found'})
+        }
+    })
+    .catch((error)=>{
+        res.status(500).json({error})
+    })
+    res.redirect("/todo");
+});
 
 app.listen(port, () => {
   console.log(`Started Server On port ${port}`);
