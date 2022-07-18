@@ -6,31 +6,90 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
+const method_override_1 = __importDefault(require("method-override"));
+const mongoose_1 = require("mongoose");
+const todo_1 = __importDefault(require("./models/todo"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
+async function run() {
+    await (0, mongoose_1.connect)('mongodb://localhost:27017/ts-demo');
+}
+run().catch(err => console.log(err));
+// const trial = async() => {
+//     const test = new User({
+//         user : 'Frank'
+//     })
+//     await test.save();
+// }
+// trial();
+// const trial2 = async() => {
+//     const test2 = new User({
+//         user : 'Paul'
+//     })
+//     await test2.save();
+// }
+// trial2();
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.use((0, method_override_1.default)('_method'));
 app.use(express_1.default.urlencoded({ extended: true }));
-let List = [{}];
-let id = 0;
+// let List: any[] = [{  
+// }];
+// let id: number = 0
+// will add mongo as db
 app.get("/", (req, res) => {
-    res.render("index", { List });
+    res.render("index");
 });
 app.post("/", (req, res) => {
-    id = id + 1;
-    const { task } = req.body;
-    List.push({ id, task });
-    res.redirect("/");
+    const { user, task } = req.body.todo;
+    const Todo = new todo_1.default({
+        user: user,
+        todo: task
+    });
+    Todo.save();
+    res.redirect("/todo");
 });
-app.post("/:id", (req, res) => );
-app.get("/todo", (req, res) => {
-    res.render("todo", { List });
+app.get("/todo", async (req, res) => {
+    const data = await todo_1.default.find();
+    res.render("todo", { data });
 });
-app.post("/todo", (req, res) => {
-    let List = [];
-    res.redirect("/");
+app.get("/todo/:id", async (req, res) => {
+    const { id } = req.params;
+    const result = await todo_1.default.findById(id);
+    res.render("show", { result });
 });
+app.get("/todo/:id/edit", async (req, res) => {
+    const { id } = req.params;
+    const result = await todo_1.default.findById(id);
+    res.render("edit", { result });
+});
+app.patch("/todo/:id/edit", async (req, res) => {
+    const { id } = req.params;
+    await todo_1.default.findByIdAndUpdate(id, { $set: req.body.todo });
+    await todo_1.default.save();
+    res.redirect("/todo");
+});
+// app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
+//     const { id } = req.params;
+//     return User.findById(id)
+//     .then((user) => {
+//         if(user){
+//             user.set(req.body.todo)
+//             return user
+//                 .save()
+//                 .then((user)=> res.status(200).json({user}))
+//                 .catch((error)=> res.status(400).json({ error }))
+//         }
+//         else{
+//             res.status(404).json({ message: 'Not Found'})
+//         }
+//     })
+//     .catch((error)=>{
+//         res.status(500).json({error})
+//     })
+//     res.redirect("/todo");
+// });
 app.listen(port, () => {
     console.log(`Started Server On port ${port}`);
 });

@@ -10,8 +10,8 @@
     <h1>Task List</h1>
     <div>
         <ul>
-            <% for(x of List) { %> 
-              <li><a href="/todo/<%=x.id%>"> Task:<%=x.task %> <b><%= x.id %></b> </a></li>
+            <% for(x of data) { %> 
+              <li><a href="/todo/<%=x.id%>"> Task:<%=x.todo %> <b><%= x.user %></b> </a></li>
               <% } %> 
         </ul>
     </div>

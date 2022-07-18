@@ -8,9 +8,11 @@
 </head>
 <body>
     <h1>Edit Task!</h1>
-    <form action="/todo/<%=x.id%>/edit" method="post">
-        <label for="task">Task </label>
-        <input type="text" name="task" id="task" placeholder="<%=x.task%>">
+    <form action="/todo/<%=result.id%>/edit?_method=PATCH" method="post">
+        <label for="user">User</label>
+        <input type="text" name="user" id="user" placeholder="<%=result.user%>">
+        <label for="task">Task</label>
+        <input type="text" name="task" id="task" placeholder="<%=result.todo%>">
         <button>Submit</button>
     </form>
     <br>

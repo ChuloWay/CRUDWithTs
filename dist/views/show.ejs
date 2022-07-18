@@ -9,14 +9,15 @@
 <body>
     <div>
         
-    <h1>Todo id: <%= x.id %> </h1>
-    <h2><%= x.task %> - <%= x.id %> </h2>
+    <h1>Task To Be Completed</h1>
+    <h2><%=result.todo%> <br> Author: <%=result.user%></h2>
     </div>
 
-    <form action="/todo/<%=x.id%>" method="post">
+    <form action="/todo/<%=result.id%>" method="post">
     <button>Delete</button>
 </form>
-<a href="/todo/<%=x.id%>/edit">Edit</a>
+<a href="/todo/<%=result.id%>/edit">Edit</a>
+
 
 </body>
 </html>
