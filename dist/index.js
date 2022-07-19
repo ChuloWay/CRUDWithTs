@@ -13,9 +13,9 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
 async function run() {
-    await (0, mongoose_1.connect)('mongodb://localhost:27017/ts-demo');
+    await (0, mongoose_1.connect)("mongodb://localhost:27017/ts-demo");
 }
-run().catch(err => console.log(err));
+run().catch((err) => console.log(err));
 // const trial = async() => {
 //     const test = new User({
 //         user : 'Frank'
@@ -32,9 +32,9 @@ run().catch(err => console.log(err));
 // trial2();
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
-app.use((0, method_override_1.default)('_method'));
+app.use((0, method_override_1.default)("_method"));
 app.use(express_1.default.urlencoded({ extended: true }));
-// let List: any[] = [{  
+// let List: any[] = [{
 // }];
 // let id: number = 0
 // will add mongo as db
@@ -42,10 +42,10 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 app.post("/", (req, res) => {
-    const { user, task } = req.body.todo;
+    const { user, todo } = req.body;
     const Todo = new todo_1.default({
         user: user,
-        todo: task
+        todo: todo,
     });
     Todo.save();
     res.redirect("/todo");
@@ -66,8 +66,18 @@ app.get("/todo/:id/edit", async (req, res) => {
 });
 app.patch("/todo/:id/edit", async (req, res) => {
     const { id } = req.params;
-    await todo_1.default.findByIdAndUpdate(id, { $set: req.body.todo });
-    await todo_1.default.save();
+    const { user, todo } = req.body;
+    console.log(user, todo);
+    const fetch = await todo_1.default.findByIdAndUpdate(id, { user, todo });
+    if (fetch) {
+        await fetch.save();
+        console.log(fetch);
+    }
+    res.redirect("/todo/:id");
+});
+app.delete("/todo/:id", async (req, res) => {
+    const { id } = req.params;
+    await todo_1.default.findByIdAndDelete(id);
     res.redirect("/todo");
 });
 // app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
