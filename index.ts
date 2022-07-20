@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import path from "path";
 import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
-import User from "./models/todo";
-import { IUser } from "./models/todo";
+import User from "./models/user";
+import Todo from "./models/todo";
 
 dotenv.config();
 const app: Express = express();
@@ -42,35 +42,64 @@ app.use(express.urlencoded({ extended: true }));
 
 // will add mongo as db
 
+
+app.get("/register",(req:Request, res:Response)=>{
+  res.render("register")
+});
+
+app.post("/register",async(req:Request, res:Response)=>{
+  const {user,password} = req.body
+  const register = new User({
+    user,
+    password
+  });
+  await register.save();
+  res.redirect("/");
+});
+
+app.get("/user",async(req:Request, res:Response)=>{
+  const users = await User.findOne({name:"Victor"})
+  .populate("todos")
+  console.log(users)
+  res.render("user", {users})
+})
+
+
 app.get("/", (req: Request, res: Response) => {
   res.render("index");
 });
 
-app.post("/", (req: Request, res: Response) => {
-  const { user, todo } = req.body;
-  const Todo = new User({
-    user: user,
-    todo: todo,
+app.post("/", async(req: Request, res: Response) => {
+  const {todo} = req.body;
+  const newTodo:any = new Todo({
+    todo
   });
-  Todo.save();
-
+  newTodo.save();
+  const userTask = await User.findOne({name:"Victor"});
+  if(userTask){
+    userTask.todos.push(newTodo);
+    userTask.save();
+  }
   res.redirect("/todo");
 });
 
+
+
+
 app.get("/todo", async (req: Request, res: Response) => {
-  const data = await User.find();
+  const data = await Todo.find();
   res.render("todo", { data });
 });
 
 app.get("/todo/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await User.findById(id);
+  const result = await Todo.findById(id);
   res.render("show", { result });
 });
 
 app.get("/todo/:id/edit", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await User.findById(id);
+  const result = await Todo.findById(id);
   res.render("edit", { result });
 });
 
@@ -78,7 +107,7 @@ app.patch("/todo/:id/edit", async (req: Request, res: Response) => {
   const { id } = req.params;
   const { user, todo } = req.body;
   console.log(user, todo);
-  const fetch = await User.findByIdAndUpdate(id, { user, todo });
+  const fetch = await Todo.findByIdAndUpdate(id, { user, todo });
   if (fetch) {
     await fetch.save();
     console.log(fetch);
@@ -88,7 +117,7 @@ app.patch("/todo/:id/edit", async (req: Request, res: Response) => {
 
 app.delete("/todo/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  await User.findByIdAndDelete(id);
+  await Todo.findByIdAndDelete(id);
   res.redirect("/todo");
 });
 

@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const method_override_1 = __importDefault(require("method-override"));
 const mongoose_1 = require("mongoose");
+const user_1 = __importDefault(require("./models/user"));
 const todo_1 = __importDefault(require("./models/todo"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -38,16 +39,38 @@ app.use(express_1.default.urlencoded({ extended: true }));
 // }];
 // let id: number = 0
 // will add mongo as db
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+app.post("/register", async (req, res) => {
+    const { user, password } = req.body;
+    const register = new user_1.default({
+        user,
+        password
+    });
+    await register.save();
+    res.redirect("/");
+});
+app.get("/user", async (req, res) => {
+    const users = await user_1.default.findOne({ name: "Victor" })
+        .populate("todos");
+    console.log(users);
+    res.render("user", { users });
+});
 app.get("/", (req, res) => {
     res.render("index");
 });
-app.post("/", (req, res) => {
-    const { user, todo } = req.body;
-    const Todo = new todo_1.default({
-        user: user,
-        todo: todo,
+app.post("/", async (req, res) => {
+    const { todo } = req.body;
+    const newTodo = new todo_1.default({
+        todo
     });
-    Todo.save();
+    newTodo.save();
+    const userTask = await user_1.default.findOne({ name: "Victor" });
+    if (userTask) {
+        userTask.todos.push(newTodo);
+        userTask.save();
+    }
     res.redirect("/todo");
 });
 app.get("/todo", async (req, res) => {
