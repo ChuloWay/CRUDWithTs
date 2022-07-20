@@ -5,6 +5,7 @@ import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
+import { countReset } from "console";
 
 dotenv.config();
 const app: Express = express();
@@ -146,3 +147,5 @@ app.delete("/todo/:id", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Started Server On port ${port}`);
 });
+
+

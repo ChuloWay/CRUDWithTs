@@ -10,6 +10,7 @@ const method_override_1 = __importDefault(require("method-override"));
 const mongoose_1 = require("mongoose");
 const user_1 = __importDefault(require("./models/user"));
 const todo_1 = __importDefault(require("./models/todo"));
+const console_1 = require("console");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
@@ -126,3 +127,42 @@ app.delete("/todo/:id", async (req, res) => {
 app.listen(port, () => {
     console.log(`Started Server On port ${port}`);
 });
+if (the)
+    content;
+brief;
+was;
+not;
+given;
+and;
+you;
+have;
+an;
+article;
+to;
+write..at;
+the;
+how;
+many;
+words;
+do
+    u;
+while (have);
+to;
+write;
+that;
+is;
+acceptable.
+;
+1500;
+words--;
+kind;
+of;
+value / quality;
+over;
+quantity;
+google;
+technical;
+writing;
+console_1.countReset;
+developers.google.com / tech - writing;
+contentre;
