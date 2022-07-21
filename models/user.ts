@@ -1,11 +1,16 @@
-import { model, Schema , Document, connect } from 'mongoose';
+import { model, Schema , Model, Document, connect } from 'mongoose';
 import todo from './todo';
+import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
     user : string;
     password: string;
     todos : string[];
 };
+
+interface IUserModel extends Model<IUser>{
+    findAndValidate(): (user:string) => Promise<IUser>
+}
 
 
 const UserSchema: Schema = new Schema<IUser>({
@@ -24,6 +29,19 @@ const UserSchema: Schema = new Schema<IUser>({
         }
     ]
 });
+
+UserSchema.statics.findAndValidate = async function(user, password){
+     const foundUser:any = await this.findOne({user});
+     const isValid = await bcrypt.compare(password, foundUser.password);
+     return isValid ? foundUser : false
+};
+
+UserSchema.pre('save', async function(next:any){
+    if(!this.isModified('password'))
+    return next();
+    this.password = await bcrypt.hash(this.password, 12)
+    next();
+})
 
 const User = model<IUser>('User', UserSchema);
 

@@ -10,7 +10,7 @@ const method_override_1 = __importDefault(require("method-override"));
 const mongoose_1 = require("mongoose");
 const user_1 = __importDefault(require("./models/user"));
 const todo_1 = __importDefault(require("./models/todo"));
-const console_1 = require("console");
+const express_session_1 = __importDefault(require("express-session"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT;
@@ -36,10 +36,33 @@ app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use((0, method_override_1.default)("_method"));
 app.use(express_1.default.urlencoded({ extended: true }));
-// let List: any[] = [{
-// }];
-// let id: number = 0
-// will add mongo as db
+const sessionConfig = {
+    secret: 'tsdemo',
+    resave: false,
+    saveUninitialized: false
+};
+app.use((0, express_session_1.default)(sessionConfig));
+const requireLogin = (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect("/login");
+    }
+    ;
+    next();
+};
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+app.post("/login", async (req, res) => {
+    const { user, password } = req.body;
+    const foundUser = await user_1.default.findAndValidate(user, password);
+    if (foundUser) {
+        req.session.user_id = foundUser._id;
+        res.redirect("/");
+    }
+    else {
+        res.redirect("/login");
+    }
+});
 app.get("/register", (req, res) => {
     res.render("register");
 });
@@ -127,42 +150,3 @@ app.delete("/todo/:id", async (req, res) => {
 app.listen(port, () => {
     console.log(`Started Server On port ${port}`);
 });
-if (the)
-    content;
-brief;
-was;
-not;
-given;
-and;
-you;
-have;
-an;
-article;
-to;
-write..at;
-the;
-how;
-many;
-words;
-do
-    u;
-while (have);
-to;
-write;
-that;
-is;
-acceptable.
-;
-1500;
-words--;
-kind;
-of;
-value / quality;
-over;
-quantity;
-google;
-technical;
-writing;
-console_1.countReset;
-developers.google.com / tech - writing;
-contentre;

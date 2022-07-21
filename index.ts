@@ -5,9 +5,12 @@ import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
-import { countReset } from "console";
-
+import bcrypt from "bcrypt";
+import session from "express-session"
 dotenv.config();
+
+
+
 const app: Express = express();
 const port = process.env.PORT;
 
@@ -37,13 +40,42 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
-// let List: any[] = [{
-// }];
-// let id: number = 0
 
-// will add mongo as db
+const sessionConfig = {
+  secret: 'tsdemo',
+  resave: false,
+  saveUninitialized: false
+}
+
+app.use(session(sessionConfig));
+
+const requireLogin = (req:Request, res:Response, next:any)=>{
+    if(!req.session.user_id){
+      return res.redirect("/login")
+    };
+    next();
+}
 
 
+
+app.get("/login",(req:Request, res:Response)=>{
+  res.render("login")
+});
+
+
+app.post("/login", async(req:Request, res:Response)=>{
+  const {user,password}= req.body;
+  const foundUser = await User.findAndValidate(user,password);
+  if(foundUser){
+    req.session.user_id = foundUser._id
+    res.redirect("/")
+  }
+  else{
+    res.redirect("/login")
+  }
+})
+
+ 
 app.get("/register",(req:Request, res:Response)=>{
   res.render("register")
 });
