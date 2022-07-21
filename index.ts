@@ -65,7 +65,7 @@ app.get("/login",(req:Request, res:Response)=>{
 
 app.post("/login", async(req:Request, res:Response)=>{
   const {user,password}= req.body;
-  const foundUser = await User.findAndValidate(user,password);
+  const foundUser = User.findAndValidate(user, password);
   if(foundUser){
     req.session.user_id = foundUser._id
     res.redirect("/")

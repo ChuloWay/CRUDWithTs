@@ -9,7 +9,7 @@ export interface IUser extends Document {
 };
 
 interface IUserModel extends Model<IUser>{
-    findAndValidate(): (user:string) => Promise<IUser>
+    findAndValidate(user: any,password: any): (user:string) => Promise<IUser>
 }
 
 
@@ -43,7 +43,7 @@ UserSchema.pre('save', async function(next:any){
     next();
 })
 
-const User = model<IUser>('User', UserSchema);
+const User = model<IUser, IUserModel>('User', UserSchema);
 
 
 export default User;
