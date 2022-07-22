@@ -112,6 +112,7 @@ app.post("/new", async(req: Request, res: Response) => {
   const userTask = await User.findById(req.session.user_id);
   if(userTask){
     userTask.todos.push(newTodo);
+    newTodo.user = userTask
     userTask.save();
   }
   res.redirect("/todo");
