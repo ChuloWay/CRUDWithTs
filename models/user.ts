@@ -9,7 +9,8 @@ export interface IUser extends Document {
 };
 
 interface IUserModel extends Model<IUser>{
-    findAndValidate(user: any,password: any): (user:string) => Promise<IUser>
+    // will still modify to get correct return value type
+    findAndValidate(user: any , password: any): any
 }
 
 

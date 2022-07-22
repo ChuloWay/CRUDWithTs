@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import path from "path";
 import methodOverride from "method-override";
@@ -6,7 +6,7 @@ import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
 import bcrypt from "bcrypt";
-import session from "express-session"
+import session, { Cookie } from "express-session"
 dotenv.config();
 
 
@@ -36,9 +36,21 @@ run().catch((err) => console.log(err));
 // }
 // trial2();
 
+
+declare module 'express-session' {
+       interface SessionData {
+           views: number;
+           user_id: any;
+       }
+   }
+  
+ interface SessionData {
+     cookie: Cookie;
+ }
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-app.use(methodOverride("_method"));
+app.use(methodOverride("_method"))  ;
 app.use(express.urlencoded({ extended: true }));
 
 const sessionConfig = {
@@ -49,7 +61,7 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
-const requireLogin = (req:Request, res:Response, next:any)=>{
+const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
     if(!req.session.user_id){
       return res.redirect("/login")
     };
@@ -57,8 +69,23 @@ const requireLogin = (req:Request, res:Response, next:any)=>{
 }
 
 
+app.get("/register",(req:Request, res:Response)=>{
+  res.render("register")
+});
 
-app.get("/login",(req:Request, res:Response)=>{
+app.post("/register",async(req:Request, res:Response)=>{
+  const {user,password} = req.body
+  const register = new User({
+    user,
+    password
+  });
+  await register.save();
+  req.session.user_id = register._id;
+  res.redirect("/",200);
+});
+
+
+app.get("/login",(req:Request, res:Response)=>{				
   res.render("login")
 });
 
@@ -73,22 +100,10 @@ app.post("/login", async(req:Request, res:Response)=>{
   else{
     res.redirect("/login")
   }
-})
+});
 
  
-app.get("/register",(req:Request, res:Response)=>{
-  res.render("register")
-});
 
-app.post("/register",async(req:Request, res:Response)=>{
-  const {user,password} = req.body
-  const register = new User({
-    user,
-    password
-  });
-  await register.save();
-  res.redirect("/");
-});
 
 app.get("/user",async(req:Request, res:Response)=>{
   const users = await User.findOne({name:"Victor"})
