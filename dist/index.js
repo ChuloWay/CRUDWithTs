@@ -18,20 +18,6 @@ async function run() {
     await (0, mongoose_1.connect)("mongodb://localhost:27017/ts-demo");
 }
 run().catch((err) => console.log(err));
-// const trial = async() => {
-//     const test = new User({
-//         user : 'Frank'
-//     })
-//     await test.save();
-// }
-// trial();
-// const trial2 = async() => {
-//     const test2 = new User({
-//         user : 'Paul'
-//     })
-//     await test2.save();
-// }
-// trial2();
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use((0, method_override_1.default)("_method"));
@@ -49,19 +35,8 @@ const requireLogin = (req, res, next) => {
     ;
     next();
 };
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-app.post("/login", async (req, res) => {
-    const { user, password } = req.body;
-    const foundUser = await user_1.default.findAndValidate(user, password);
-    if (foundUser) {
-        req.session.user_id = foundUser._id;
-        res.redirect("/");
-    }
-    else {
-        res.redirect("/login");
-    }
+app.get("/", (req, res) => {
+    res.render("index");
 });
 app.get("/register", (req, res) => {
     res.render("register");
@@ -73,32 +48,48 @@ app.post("/register", async (req, res) => {
         password
     });
     await register.save();
-    res.redirect("/");
+    req.session.user_id = register._id;
+    console.log(req.session);
+    res.redirect("/new");
 });
-app.get("/user", async (req, res) => {
-    const users = await user_1.default.findOne({ name: "Victor" })
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+app.post("/login", async (req, res) => {
+    const { user, password } = req.body;
+    const foundUser = await user_1.default.findAndValidate(user, password);
+    if (foundUser) {
+        req.session.user_id = foundUser._id;
+        res.redirect("/new");
+    }
+    else {
+        res.redirect("/login");
+    }
+});
+app.get("/user", requireLogin, async (req, res) => {
+    const users = await user_1.default.findById(req.session.user_id)
         .populate("todos");
     console.log(users);
     res.render("user", { users });
 });
-app.get("/", (req, res) => {
-    res.render("index");
+app.get("/new", requireLogin, (req, res) => {
+    res.render("new");
 });
-app.post("/", async (req, res) => {
+app.post("/new", async (req, res) => {
     const { todo } = req.body;
     const newTodo = new todo_1.default({
         todo
     });
     newTodo.save();
-    const userTask = await user_1.default.findOne({ name: "Victor" });
+    const userTask = await user_1.default.findById(req.session.user_id);
     if (userTask) {
         userTask.todos.push(newTodo);
         userTask.save();
     }
     res.redirect("/todo");
 });
-app.get("/todo", async (req, res) => {
-    const data = await todo_1.default.find();
+app.get("/todo", requireLogin, async (req, res) => {
+    const data = await todo_1.default.findOne({});
     res.render("todo", { data });
 });
 app.get("/todo/:id", async (req, res) => {

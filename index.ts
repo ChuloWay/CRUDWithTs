@@ -5,7 +5,6 @@ import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
-import bcrypt from "bcrypt";
 import session, { Cookie } from "express-session"
 dotenv.config();
 
@@ -19,23 +18,6 @@ async function run() {
 }
 
 run().catch((err) => console.log(err));
-
-// const trial = async() => {
-//     const test = new User({
-//         user : 'Frank'
-//     })
-//     await test.save();
-// }
-// trial();
-
-// const trial2 = async() => {
-//     const test2 = new User({
-//         user : 'Paul'
-//     })
-//     await test2.save();
-// }
-// trial2();
-
 
 declare module 'express-session' {
        interface SessionData {
@@ -69,6 +51,11 @@ const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
 }
 
 
+
+app.get("/",(req: Request, res: Response) => {
+  res.render("index");
+});
+
 app.get("/register",(req:Request, res:Response)=>{
   res.render("register")
 });
@@ -81,7 +68,8 @@ app.post("/register",async(req:Request, res:Response)=>{
   });
   await register.save();
   req.session.user_id = register._id;
-  res.redirect("/",200);
+  console.log(req.session)
+  res.redirect("/new");
 });
 
 
@@ -92,38 +80,36 @@ app.get("/login",(req:Request, res:Response)=>{
 
 app.post("/login", async(req:Request, res:Response)=>{
   const {user,password}= req.body;
-  const foundUser = User.findAndValidate(user, password);
+  const foundUser = await User.findAndValidate(user, password);
   if(foundUser){
     req.session.user_id = foundUser._id
-    res.redirect("/")
+    res.redirect("/new")
   }
   else{
     res.redirect("/login")
   }
 });
 
- 
 
-
-app.get("/user",async(req:Request, res:Response)=>{
-  const users = await User.findOne({name:"Victor"})
+app.get("/user",requireLogin,async(req:Request, res:Response)=>{
+  const users = await User.findById(req.session.user_id)
   .populate("todos")
   console.log(users)
   res.render("user", {users})
 })
 
 
-app.get("/", (req: Request, res: Response) => {
-  res.render("index");
+app.get("/new", requireLogin,(req: Request, res: Response) => {
+  res.render("new");
 });
 
-app.post("/", async(req: Request, res: Response) => {
+app.post("/new", async(req: Request, res: Response) => {
   const {todo} = req.body;
   const newTodo:any = new Todo({
     todo
   });
   newTodo.save();
-  const userTask = await User.findOne({name:"Victor"});
+  const userTask = await User.findById(req.session.user_id);
   if(userTask){
     userTask.todos.push(newTodo);
     userTask.save();
@@ -134,8 +120,8 @@ app.post("/", async(req: Request, res: Response) => {
 
 
 
-app.get("/todo", async (req: Request, res: Response) => {
-  const data = await Todo.find();
+app.get("/todo",requireLogin, async (req: Request, res: Response) => {
+  const data = await Todo.findOne({})
   res.render("todo", { data });
 });
 

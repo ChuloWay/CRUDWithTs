@@ -6,6 +6,10 @@ const TodoSchema = new mongoose_1.Schema({
         type: String,
         required: true
     },
+    user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 });
 const Todo = (0, mongoose_1.model)('Todo', TodoSchema);
 exports.default = Todo;
