@@ -90,7 +90,8 @@ app.post("/new", async (req, res) => {
     res.redirect("/todo");
 });
 app.get("/todo", requireLogin, async (req, res) => {
-    const data = await todo_1.default.findOne({});
+    const data = await todo_1.default.findById(req.session.user_id)
+        .populate("user");
     res.render("todo", { data });
 });
 app.get("/todo/:id", async (req, res) => {

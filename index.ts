@@ -103,6 +103,8 @@ app.get("/new", requireLogin,(req: Request, res: Response) => {
   res.render("new");
 });
 
+
+
 app.post("/new", async(req: Request, res: Response) => {
   const {todo} = req.body;
   const newTodo:any = new Todo({
@@ -122,7 +124,8 @@ app.post("/new", async(req: Request, res: Response) => {
 
 
 app.get("/todo",requireLogin, async (req: Request, res: Response) => {
-  const data = await Todo.findOne({})
+  const data = await Todo.findById(req.session.user_id)
+  .populate("user")
   res.render("todo", { data });
 });
 
