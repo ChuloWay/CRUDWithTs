@@ -92,7 +92,7 @@ app.post("/login", async(req:Request, res:Response)=>{
 
 
 app.get("/user",requireLogin,async(req:Request, res:Response)=>{
-  const users = await User.findById(req.session.user_id)
+  const users = await User.find()
   .populate("todos")
   console.log(users)
   res.render("user", {users})

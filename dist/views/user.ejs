@@ -9,17 +9,23 @@
 <body>
     <h1>A List Of Active Users</h1>
     <ul>
-     <li><%=users.user%></li> 
-    </ul>
-     <h1>Users Task</h1>
-     <br>
-     <ul>
-         <%for(x of users.todos) {%> 
-            <li>
-                    <%= x.todo %> 
-            </li>
-         <% } %> 
+        <% for(let u of users) { %> 
+        <li><%=u.user  %></li>
+        <% } %> 
         </ul>
+        <h1>Tasks</h1>
+        <ul>
+            <% for(let u of users) { %> 
+            <li><%=u.user%>
+
+            <ul>
+                <% for(let x of u.todos) {%> 
+                    <li><%=x.todo %> </li>
+                <% } %> </ul>
+                </li>
+            <% } %> 
+            </ul>
+    
     
 </body>
 </html>

@@ -67,7 +67,7 @@ app.post("/login", async (req, res) => {
     }
 });
 app.get("/user", requireLogin, async (req, res) => {
-    const users = await user_1.default.findById(req.session.user_id)
+    const users = await user_1.default.find()
         .populate("todos");
     console.log(users);
     res.render("user", { users });
