@@ -85,13 +85,16 @@ app.post("/new", async (req, res) => {
     if (userTask) {
         userTask.todos.push(newTodo);
         newTodo.user = userTask;
-        userTask.save();
+        await userTask.save();
+        await newTodo.save();
+        console.log(userTask);
     }
     res.redirect("/todo");
 });
 app.get("/todo", requireLogin, async (req, res) => {
-    const data = await todo_1.default.findById(req.session.user_id)
-        .populate("user");
+    const data = await user_1.default.findById(req.session.user_id)
+        .populate("todos");
+    console.log(data);
     res.render("todo", { data });
 });
 app.get("/todo/:id", async (req, res) => {

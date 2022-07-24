@@ -114,8 +114,10 @@ app.post("/new", async(req: Request, res: Response) => {
   const userTask = await User.findById(req.session.user_id);
   if(userTask){
     userTask.todos.push(newTodo);
-    newTodo.user = userTask
-    userTask.save();
+    newTodo.user = userTask;
+    await userTask.save();
+    await newTodo.save();
+    console.log(userTask);
   }
   res.redirect("/todo");
 });
@@ -124,8 +126,9 @@ app.post("/new", async(req: Request, res: Response) => {
 
 
 app.get("/todo",requireLogin, async (req: Request, res: Response) => {
-  const data = await Todo.findById(req.session.user_id)
-  .populate("user")
+  const data = await User.findById(req.session.user_id)
+  .populate("todos"); 
+  console.log(data);
   res.render("todo", { data });
 });
 

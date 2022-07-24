@@ -7,12 +7,12 @@
     <title>Task List</title>
 </head>
 <body>
-    <h1>Task List</h1>
+    <h1>Task List for <%=data.user%></h1>
     <div>
-        <ul>
-            <% for(x of data) { %> 
-              <li><a href="/todo/<%=x.id%>"> Task:<%=x.todo %> <b><%= x.user %></b> </a></li>
-              <% } %> 
+        <ul> 
+           <% for(let x of data.todos) { %>
+            <li><a href="/todo/<%=x.id%>"><%=x.todo%></a></li>
+            <% } %> 
         </ul>
     </div>
     <a href="/">Go Back</a>
