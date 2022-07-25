@@ -35,6 +35,12 @@ const requireLogin = (req, res, next) => {
     ;
     next();
 };
+// const isAdmin =  (req:Request, res:Response, next:NextFunction)=>{
+//   if(req.session.user_id ){
+//     next();
+//   };
+//   res.redirect("/login");
+// }
 app.get("/", (req, res) => {
     res.render("index");
 });

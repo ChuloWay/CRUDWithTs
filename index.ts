@@ -8,7 +8,7 @@ import Todo from "./models/todo";
 import session, { Cookie } from "express-session"
 dotenv.config();
 
-
+// Add Passport in other branch [ to make use of google Auth]
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -50,6 +50,12 @@ const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
     next();
 }
 
+// const isAdmin =  (req:Request, res:Response, next:NextFunction)=>{
+//   if(req.session.user_id ){
+//     next();
+//   };
+//   res.redirect("/login");
+// }
 
 
 app.get("/",(req: Request, res: Response) => {
