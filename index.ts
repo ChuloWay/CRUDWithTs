@@ -50,12 +50,16 @@ const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
     next();
 }
 
-// const isAdmin =  (req:Request, res:Response, next:NextFunction)=>{
-//   if(req.session.user_id ){
-//     next();
-//   };
-//   res.redirect("/login");
-// }
+const admin =  async(req:Request, res:Response, next:NextFunction)=>{
+  const owner = await User.findOne({id:req.session.user_id})
+  if(owner){
+    if(owner.isAdmin ){
+      next();
+    };
+    res.redirect("/login");
+  }
+  res.redirect("/register")
+}
 
 
 app.get("/",(req: Request, res: Response) => {
@@ -97,7 +101,7 @@ app.post("/login", async(req:Request, res:Response)=>{
 });
 
 
-app.get("/user",requireLogin,async(req:Request, res:Response)=>{
+app.get("/user",requireLogin,admin,async(req:Request, res:Response)=>{
   const users = await User.find()
   .populate("todos")
   console.log(users)
@@ -134,7 +138,7 @@ app.post("/new", async(req: Request, res: Response) => {
 app.get("/todo",requireLogin, async (req: Request, res: Response) => {
   const data = await User.findById(req.session.user_id)
   .populate("todos"); 
-  console.log(data);
+  console.dir(req.user);
   res.render("todo", { data });
 });
 

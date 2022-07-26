@@ -15,6 +15,9 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         required: [true, 'Cannot Be Empty!']
     },
+    isAdmin: {
+        type: Boolean
+    },
     todos: [
         {
             type: mongoose_1.Schema.Types.ObjectId,

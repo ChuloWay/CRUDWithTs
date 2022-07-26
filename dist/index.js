@@ -12,6 +12,7 @@ const user_1 = __importDefault(require("./models/user"));
 const todo_1 = __importDefault(require("./models/todo"));
 const express_session_1 = __importDefault(require("express-session"));
 dotenv_1.default.config();
+// Add Passport in other branch [ to make use of google Auth]
 const app = (0, express_1.default)();
 const port = process.env.PORT;
 async function run() {
@@ -35,12 +36,17 @@ const requireLogin = (req, res, next) => {
     ;
     next();
 };
-// const isAdmin =  (req:Request, res:Response, next:NextFunction)=>{
-//   if(req.session.user_id ){
-//     next();
-//   };
-//   res.redirect("/login");
-// }
+const admin = async (req, res, next) => {
+    const owner = await user_1.default.findOne({ id: req.session.user_id });
+    if (owner) {
+        if (owner.isAdmin) {
+            next();
+        }
+        ;
+        res.redirect("/login");
+    }
+    res.redirect("/register");
+};
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -72,7 +78,7 @@ app.post("/login", async (req, res) => {
         res.redirect("/login");
     }
 });
-app.get("/user", requireLogin, async (req, res) => {
+app.get("/user", requireLogin, admin, async (req, res) => {
     const users = await user_1.default.find()
         .populate("todos");
     console.log(users);
@@ -100,7 +106,7 @@ app.post("/new", async (req, res) => {
 app.get("/todo", requireLogin, async (req, res) => {
     const data = await user_1.default.findById(req.session.user_id)
         .populate("todos");
-    console.log(data);
+    console.dir(req.user);
     res.render("todo", { data });
 });
 app.get("/todo/:id", async (req, res) => {
