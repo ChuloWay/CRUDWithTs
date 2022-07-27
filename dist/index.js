@@ -36,16 +36,25 @@ const requireLogin = (req, res, next) => {
     ;
     next();
 };
-const admin = async (req, res, next) => {
-    const owner = await user_1.default.findOne({ id: req.session.user_id });
-    if (owner) {
-        if (owner.isAdmin) {
-            next();
+// const admin =  async(req:Request, res:Response, next:NextFunction)=>{
+//   const owner = await User.findOne({id:req.session.user_id})
+//   if(owner){
+//     console.log("owner :", owner)
+//     if(owner.isAdmin ){
+//       next();
+//     };
+//     res.redirect("/login");
+//   }
+//   res.redirect("/register")
+// }
+const admin2 = function hasRole(roles) {
+    return async function (req, res, next) {
+        const user = await user_1.default.findOne({ where: { id: req.session.user_id } });
+        if (!user || !roles.includes(user.role)) {
+            return res.status(403).send({ error: { status: 403, message: 'Access denied.' } });
         }
-        ;
-        res.redirect("/login");
-    }
-    res.redirect("/register");
+        next();
+    };
 };
 app.get("/", (req, res) => {
     res.render("index");
@@ -78,7 +87,7 @@ app.post("/login", async (req, res) => {
         res.redirect("/login");
     }
 });
-app.get("/user", requireLogin, admin, async (req, res) => {
+app.get("/user", requireLogin, admin2, async (req, res) => {
     const users = await user_1.default.find()
         .populate("todos");
     console.log(users);

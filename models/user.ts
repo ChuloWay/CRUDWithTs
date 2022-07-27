@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 export interface IUser extends Document {
     user : string;
     password: string;
-    isAdmin: Boolean
+    role : string;
     todos : string[];
 };
 
@@ -24,8 +24,9 @@ const UserSchema: Schema = new Schema<IUser>({
         type:  String,
         required: [true, 'Cannot Be Empty!']
     },
-    isAdmin: {
-        type: Boolean
+    role: {
+        type: String,
+        enum: ['admin', 'mod']
     },
     todos : [
         {

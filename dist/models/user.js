@@ -15,8 +15,9 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         required: [true, 'Cannot Be Empty!']
     },
-    isAdmin: {
-        type: Boolean
+    role: {
+        type: String,
+        enum: ['admin', 'mod']
     },
     todos: [
         {

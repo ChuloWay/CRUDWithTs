@@ -50,15 +50,26 @@ const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
     next();
 }
 
-const admin =  async(req:Request, res:Response, next:NextFunction)=>{
-  const owner = await User.findOne({id:req.session.user_id})
-  if(owner){
-    if(owner.isAdmin ){
-      next();
-    };
-    res.redirect("/login");
+// const admin =  async(req:Request, res:Response, next:NextFunction)=>{
+//   const owner = await User.findOne({id:req.session.user_id})
+//   if(owner){
+//     console.log("owner :", owner)
+//     if(owner.isAdmin ){
+//       next();
+//     };
+//     res.redirect("/login");
+//   }
+//   res.redirect("/register")
+// }
+
+const admin2 = function hasRole(roles: string | string[]) {
+  return async function(req:Request, res:Response, next:NextFunction) {
+    const user = await User.findOne({ where: { id: req.session.user_id } });
+    if (!user || !roles.includes(user.role)) {
+      return res.status(403).send({error: { status:403, message:'Access denied.'}});
+    }
+    next();
   }
-  res.redirect("/register")
 }
 
 
@@ -101,7 +112,7 @@ app.post("/login", async(req:Request, res:Response)=>{
 });
 
 
-app.get("/user",requireLogin,admin,async(req:Request, res:Response)=>{
+app.get("/user",requireLogin,admin2,async(req:Request, res:Response)=>{
   const users = await User.find()
   .populate("todos")
   console.log(users)
