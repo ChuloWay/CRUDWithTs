@@ -62,22 +62,22 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
 //   res.redirect("/register")
 // }
 
-
-const admin =  async(req:Request, res:Response, next:NextFunction)=>{
-const user = await User.findById(req.session.user_id);
-    if (user) {
-      console.log("user:", user)
-      if (user.role === "admin") {
-
-        
-        next();
-      }
-    } else {
-    res.redirect("/login")
-    console.log("wrong stufff")
+const admin = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await User.findById(req.session.user_id);
+  if (user) {
+    console.log("user:", user);
+    if (user.role === "admin") {
+      next();
     }
-  };
-
+    else{
+      console.log("Not Admin")
+      res.redirect("/login");
+    }
+  } else {
+    console.log("No User");
+    res.redirect("/login");
+  }
+};
 
 // const admin2 = function hasRole(roles: string | string[]) {
 //   return async function (req: Request, res: Response, next: NextFunction) {

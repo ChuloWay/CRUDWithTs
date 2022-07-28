@@ -53,10 +53,14 @@ const admin = async (req, res, next) => {
         if (user.role === "admin") {
             next();
         }
+        else {
+            console.log("Not Admin");
+            res.redirect("/login");
+        }
     }
     else {
+        console.log("No User");
         res.redirect("/login");
-        console.log("wrong stufff");
     }
 };
 // const admin2 = function hasRole(roles: string | string[]) {
