@@ -24,16 +24,15 @@ app.set("view engine", "ejs");
 app.use((0, method_override_1.default)("_method"));
 app.use(express_1.default.urlencoded({ extended: true }));
 const sessionConfig = {
-    secret: 'tsdemo',
+    secret: "tsdemo",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
 };
 app.use((0, express_session_1.default)(sessionConfig));
 const requireLogin = (req, res, next) => {
     if (!req.session.user_id) {
         return res.redirect("/login");
     }
-    ;
     next();
 };
 // const admin =  async(req:Request, res:Response, next:NextFunction)=>{
@@ -47,15 +46,33 @@ const requireLogin = (req, res, next) => {
 //   }
 //   res.redirect("/register")
 // }
-const admin2 = function hasRole(roles) {
-    return async function (req, res, next) {
-        const user = await user_1.default.findOne({ where: { id: req.session.user_id } });
-        if (!user || !roles.includes(user.role)) {
-            return res.status(403).send({ error: { status: 403, message: 'Access denied.' } });
+const admin = async (req, res, next) => {
+    const user = await user_1.default.findById(req.session.user_id);
+    if (user) {
+        console.log("user:", user);
+        if (user.role === "admin") {
+            next();
         }
-        next();
-    };
+    }
+    else {
+        res.redirect("/login");
+        console.log("wrong stufff");
+    }
 };
+// const admin2 = function hasRole(roles: string | string[]) {
+//   return async function (req: Request, res: Response, next: NextFunction) {
+//     const user = await User.findOne({ where: { id: req.session.user_id } });
+//     if (user) {
+//       console.log("user:", user)
+//       if (user.role === "admin") {
+//         next();
+//       }
+//     } else {
+//     res.redirect("/login")
+//     console.log("wrong stufff")
+//     }
+//   };
+// };
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -63,10 +80,12 @@ app.get("/register", (req, res) => {
     res.render("register");
 });
 app.post("/register", async (req, res) => {
-    const { user, password } = req.body;
+    const { user, password, role } = req.body;
+    console.log(req.body);
     const register = new user_1.default({
         user,
-        password
+        password,
+        role,
     });
     await register.save();
     req.session.user_id = register._id;
@@ -87,9 +106,8 @@ app.post("/login", async (req, res) => {
         res.redirect("/login");
     }
 });
-app.get("/user", requireLogin, admin2, async (req, res) => {
-    const users = await user_1.default.find()
-        .populate("todos");
+app.get("/user", requireLogin, admin, async (req, res) => {
+    const users = await user_1.default.find().populate("todos");
     console.log(users);
     res.render("user", { users });
 });
@@ -99,7 +117,7 @@ app.get("/new", requireLogin, (req, res) => {
 app.post("/new", async (req, res) => {
     const { todo } = req.body;
     const newTodo = new todo_1.default({
-        todo
+        todo,
     });
     newTodo.save();
     const userTask = await user_1.default.findById(req.session.user_id);
@@ -113,8 +131,7 @@ app.post("/new", async (req, res) => {
     res.redirect("/todo");
 });
 app.get("/todo", requireLogin, async (req, res) => {
-    const data = await user_1.default.findById(req.session.user_id)
-        .populate("todos");
+    const data = await user_1.default.findById(req.session.user_id).populate("todos");
     console.dir(req.user);
     res.render("todo", { data });
 });

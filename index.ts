@@ -5,7 +5,7 @@ import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
-import session, { Cookie } from "express-session"
+import session, { Cookie } from "express-session";
 dotenv.config();
 
 // Add Passport in other branch [ to make use of google Auth]
@@ -19,36 +19,36 @@ async function run() {
 
 run().catch((err) => console.log(err));
 
-declare module 'express-session' {
-       interface SessionData {
-           views: number;
-           user_id: any;
-       }
-   }
-  
- interface SessionData {
-     cookie: Cookie;
- }
+declare module "express-session" {
+  interface SessionData {
+    views: number;
+    user_id: any;
+  }
+}
+
+interface SessionData {
+  cookie: Cookie;
+}
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-app.use(methodOverride("_method"))  ;
+app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 
 const sessionConfig = {
-  secret: 'tsdemo',
+  secret: "tsdemo",
   resave: false,
-  saveUninitialized: false
-}
+  saveUninitialized: false,
+};
 
 app.use(session(sessionConfig));
 
-const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
-    if(!req.session.user_id){
-      return res.redirect("/login")
-    };
-    next();
-}
+const requireLogin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session.user_id) {
+    return res.redirect("/login");
+  }
+  next();
+};
 
 // const admin =  async(req:Request, res:Response, next:NextFunction)=>{
 //   const owner = await User.findOne({id:req.session.user_id})
@@ -62,78 +62,94 @@ const requireLogin = (req:Request, res:Response, next:NextFunction)=>{
 //   res.redirect("/register")
 // }
 
-const admin2 = function hasRole(roles: string | string[]) {
-  return async function(req:Request, res:Response, next:NextFunction) {
-    const user = await User.findOne({ where: { id: req.session.user_id } });
-    if (!user || !roles.includes(user.role)) {
-      return res.status(403).send({error: { status:403, message:'Access denied.'}});
+
+const admin =  async(req:Request, res:Response, next:NextFunction)=>{
+const user = await User.findById(req.session.user_id);
+    if (user) {
+      console.log("user:", user)
+      if (user.role === "admin") {
+
+        
+        next();
+      }
+    } else {
+    res.redirect("/login")
+    console.log("wrong stufff")
     }
-    next();
-  }
-}
+  };
 
 
-app.get("/",(req: Request, res: Response) => {
+// const admin2 = function hasRole(roles: string | string[]) {
+//   return async function (req: Request, res: Response, next: NextFunction) {
+//     const user = await User.findOne({ where: { id: req.session.user_id } });
+//     if (user) {
+//       console.log("user:", user)
+//       if (user.role === "admin") {
+
+//         next();
+//       }
+//     } else {
+//     res.redirect("/login")
+//     console.log("wrong stufff")
+//     }
+//   };
+// };
+
+app.get("/", (req: Request, res: Response) => {
   res.render("index");
 });
 
-app.get("/register",(req:Request, res:Response)=>{
-  res.render("register")
+app.get("/register", (req: Request, res: Response) => {
+  res.render("register");
 });
 
-app.post("/register",async(req:Request, res:Response)=>{
-  const {user,password} = req.body
+app.post("/register", async (req: Request, res: Response) => {
+  const { user, password, role } = req.body;
+  console.log(req.body);
   const register = new User({
     user,
-    password
+    password,
+    role,
   });
   await register.save();
   req.session.user_id = register._id;
-  console.log(req.session)
+  console.log(req.session);
   res.redirect("/new");
 });
 
-
-app.get("/login",(req:Request, res:Response)=>{				
-  res.render("login")
+app.get("/login", (req: Request, res: Response) => {
+  res.render("login");
 });
 
-
-app.post("/login", async(req:Request, res:Response)=>{
-  const {user,password}= req.body;
+app.post("/login", async (req: Request, res: Response) => {
+  const { user, password } = req.body;
   const foundUser = await User.findAndValidate(user, password);
-  if(foundUser){
-    req.session.user_id = foundUser._id
-    res.redirect("/new")
-  }
-  else{
-    res.redirect("/login")
+  if (foundUser) {
+    req.session.user_id = foundUser._id;
+    res.redirect("/new");
+  } else {
+    res.redirect("/login");
   }
 });
 
+app.get("/user", requireLogin, admin, async (req: Request, res: Response) => {
+  const users = await User.find().populate("todos");
+  console.log(users);
+  res.render("user", { users });
+});
 
-app.get("/user",requireLogin,admin2,async(req:Request, res:Response)=>{
-  const users = await User.find()
-  .populate("todos")
-  console.log(users)
-  res.render("user", {users})
-})
-
-
-app.get("/new", requireLogin,(req: Request, res: Response) => {
+app.get("/new", requireLogin, (req: Request, res: Response) => {
   res.render("new");
 });
 
-
-
-app.post("/new", async(req: Request, res: Response) => {
-  const {todo} = req.body;
-  const newTodo:any = new Todo({
-    todo
+app.post("/new", async (req: Request, res: Response) => {
+  const { todo } = req.body;
+  const newTodo: any = new Todo({
+    todo,
   });
   newTodo.save();
   const userTask = await User.findById(req.session.user_id);
-  if(userTask){
+  if (userTask) {
     userTask.todos.push(newTodo);
     newTodo.user = userTask;
     await userTask.save();
@@ -143,12 +159,8 @@ app.post("/new", async(req: Request, res: Response) => {
   res.redirect("/todo");
 });
 
-
-
-
-app.get("/todo",requireLogin, async (req: Request, res: Response) => {
-  const data = await User.findById(req.session.user_id)
-  .populate("todos"); 
+app.get("/todo", requireLogin, async (req: Request, res: Response) => {
+  const data = await User.findById(req.session.user_id).populate("todos");
   console.dir(req.user);
   res.render("todo", { data });
 });
@@ -208,5 +220,3 @@ app.delete("/todo/:id", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`Started Server On port ${port}`);
 });
-
-
