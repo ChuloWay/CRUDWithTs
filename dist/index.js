@@ -165,6 +165,10 @@ app.delete("/todo/:id", async (req, res) => {
     await todo_1.default.findByIdAndDelete(id);
     res.redirect("/todo");
 });
+app.get("/logout", (req, res) => {
+    req.session.user_id = null;
+    res.redirect("/login");
+});
 // app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
 //     const { id } = req.params;
 //     return User.findById(id)
