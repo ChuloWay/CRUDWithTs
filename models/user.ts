@@ -39,8 +39,10 @@ const UserSchema: Schema = new Schema<IUser>({
 
 UserSchema.statics.findAndValidate = async function(user, password){
      const foundUser:any = await this.findOne({user});
+     if(foundUser){
      const isValid = await bcrypt.compare(password, foundUser.password);
      return isValid ? foundUser : false
+     }
 };
 
 UserSchema.pre('save', async function(next:any){
