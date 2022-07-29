@@ -1,5 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+import { PORT } from "./src/utils/secrets";
+import "./config/passport";
 import path from "path";
 import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
