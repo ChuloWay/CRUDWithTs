@@ -9,6 +9,7 @@ import session, { Cookie } from "express-session";
 dotenv.config();
 
 // Add Passport in other branch [ to make use of google Auth]
+// refactor codes using express router
 
 const app: Express = express();
 const port = process.env.PORT;
