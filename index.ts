@@ -51,18 +51,6 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// const admin =  async(req:Request, res:Response, next:NextFunction)=>{
-//   const owner = await User.findOne({id:req.session.user_id})
-//   if(owner){
-//     console.log("owner :", owner)
-//     if(owner.isAdmin ){
-//       next();
-//     };
-//     res.redirect("/login");
-//   }
-//   res.redirect("/register")
-// }
-
 const admin = async (req: Request, res: Response, next: NextFunction) => {
   const user = await User.findById(req.session.user_id);
   if (user) {
@@ -79,22 +67,6 @@ const admin = async (req: Request, res: Response, next: NextFunction) => {
     res.redirect("/login");
   }
 };
-
-// const admin2 = function hasRole(roles: string | string[]) {
-//   return async function (req: Request, res: Response, next: NextFunction) {
-//     const user = await User.findOne({ where: { id: req.session.user_id } });
-//     if (user) {
-//       console.log("user:", user)
-//       if (user.role === "admin") {
-
-//         next();
-//       }
-//     } else {
-//     res.redirect("/login")
-//     console.log("wrong stufff")
-//     }
-//   };
-// };
 
 app.get("/", (req: Request, res: Response) => {
   res.render("index");
@@ -200,28 +172,6 @@ app.get("/logout", (req: Request, res: Response)=> {
   req.session.user_id = null;
   res.redirect("/login")
 })
-
-// app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
-//     const { id } = req.params;
-//     return User.findById(id)
-//     .then((user) => {
-//         if(user){
-//             user.set(req.body.todo)
-
-//             return user
-//                 .save()
-//                 .then((user)=> res.status(200).json({user}))
-//                 .catch((error)=> res.status(400).json({ error }))
-//         }
-//         else{
-//             res.status(404).json({ message: 'Not Found'})
-//         }
-//     })
-//     .catch((error)=>{
-//         res.status(500).json({error})
-//     })
-//     res.redirect("/todo");
-// });
 
 app.listen(port, () => {
   console.log(`Started Server On port ${port}`);
