@@ -2,6 +2,8 @@ import { access } from "fs";
 import passport from "passport";
 import passportGoogle from "passport-google-oauth20";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../utils/secrets";
+import User from "../models/user";
+
 const GoogleStrategy = passportGoogle.Strategy;
 
 passport.use(
@@ -15,4 +17,7 @@ passport.use(
             // get and save profile details
         }
     )
-)
+);
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
