@@ -1,14 +1,15 @@
-import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express, { Express, Request, Response, NextFunction } from "express";
 import { PORT } from "./src/utils/secrets";
-import "./config/passport";
+import passport from "passport"
 import path from "path";
 import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
 import session, { Cookie } from "express-session";
-dotenv.config();
+import "./src/config/passport";
 
 // Add Passport in other branch [ to make use of google Auth]
 
@@ -52,18 +53,6 @@ const requireLogin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// const admin =  async(req:Request, res:Response, next:NextFunction)=>{
-//   const owner = await User.findOne({id:req.session.user_id})
-//   if(owner){
-//     console.log("owner :", owner)
-//     if(owner.isAdmin ){
-//       next();
-//     };
-//     res.redirect("/login");
-//   }
-//   res.redirect("/register")
-// }
-
 const admin = async (req: Request, res: Response, next: NextFunction) => {
   const user = await User.findById(req.session.user_id);
   if (user) {
@@ -81,21 +70,6 @@ const admin = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// const admin2 = function hasRole(roles: string | string[]) {
-//   return async function (req: Request, res: Response, next: NextFunction) {
-//     const user = await User.findOne({ where: { id: req.session.user_id } });
-//     if (user) {
-//       console.log("user:", user)
-//       if (user.role === "admin") {
-
-//         next();
-//       }
-//     } else {
-//     res.redirect("/login")
-//     console.log("wrong stufff")
-//     }
-//   };
-// };
 
 app.get("/", (req: Request, res: Response) => {
   res.render("index");
@@ -202,28 +176,16 @@ app.get("/logout", (req: Request, res: Response)=> {
   res.redirect("/login")
 })
 
-// app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
-//     const { id } = req.params;
-//     return User.findById(id)
-//     .then((user) => {
-//         if(user){
-//             user.set(req.body.todo)
+//You can see we use passport.authenticate() which accepts 2 arguments, first one is the "strategy" we want to use i.e Google in our case, the second is an object that defines the scope. Scopes are the pieces of data that we want from the user's account. 
+app.get("/google", passport.authenticate("google", {
+  scope: ["email", "profile"],
+})
+);
 
-//             return user
-//                 .save()
-//                 .then((user)=> res.status(200).json({user}))
-//                 .catch((error)=> res.status(400).json({ error }))
-//         }
-//         else{
-//             res.status(404).json({ message: 'Not Found'})
-//         }
-//     })
-//     .catch((error)=>{
-//         res.status(500).json({error})
-//     })
-//     res.redirect("/todo");
-// });
+app.get("/google/redirect", passport.authenticate("google"),(req: Request, res: Response)=>{
+  res.send("callback route");
+})
 
-app.listen(port, () => {
-  console.log(`Started Server On port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Started Server On port ${PORT}`);
 });

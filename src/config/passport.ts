@@ -2,7 +2,7 @@ import { access } from "fs";
 import passport from "passport";
 import passportGoogle from "passport-google-oauth20";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../utils/secrets";
-import User from "../models/user";
+import User from "../../models/user";
 
 const GoogleStrategy = passportGoogle.Strategy;
 
@@ -11,7 +11,7 @@ passport.use(
         {
             clientID: GOOGLE_CLIENT_ID,
             clientSecret: GOOGLE_CLIENT_SECRET,
-            callbackURL: "/auth/google/redirect",
+            callbackURL: "/google/redirect",
         },
         (accessToken, refreshToken, profile, done) => {
             // get and save profile details
@@ -19,5 +19,3 @@ passport.use(
     )
 );
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());

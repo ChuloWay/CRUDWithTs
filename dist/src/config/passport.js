@@ -10,7 +10,7 @@ const GoogleStrategy = passport_google_oauth20_1.default.Strategy;
 passport_1.default.use(new GoogleStrategy({
     clientID: secrets_1.GOOGLE_CLIENT_ID,
     clientSecret: secrets_1.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/redirect",
+    callbackURL: "/google/redirect",
 }, (accessToken, refreshToken, profile, done) => {
     // get and save profile details
 }));

@@ -3,16 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
-require("./config/passport");
+dotenv_1.default.config();
+const express_1 = __importDefault(require("express"));
+const secrets_1 = require("./src/utils/secrets");
+const passport_1 = __importDefault(require("passport"));
 const path_1 = __importDefault(require("path"));
 const method_override_1 = __importDefault(require("method-override"));
 const mongoose_1 = require("mongoose");
 const user_1 = __importDefault(require("./models/user"));
 const todo_1 = __importDefault(require("./models/todo"));
 const express_session_1 = __importDefault(require("express-session"));
-dotenv_1.default.config();
+require("./src/config/passport");
 // Add Passport in other branch [ to make use of google Auth]
 const app = (0, express_1.default)();
 const port = process.env.PORT;
@@ -36,17 +38,6 @@ const requireLogin = (req, res, next) => {
     }
     next();
 };
-// const admin =  async(req:Request, res:Response, next:NextFunction)=>{
-//   const owner = await User.findOne({id:req.session.user_id})
-//   if(owner){
-//     console.log("owner :", owner)
-//     if(owner.isAdmin ){
-//       next();
-//     };
-//     res.redirect("/login");
-//   }
-//   res.redirect("/register")
-// }
 const admin = async (req, res, next) => {
     const user = await user_1.default.findById(req.session.user_id);
     if (user) {
@@ -64,20 +55,6 @@ const admin = async (req, res, next) => {
         res.redirect("/login");
     }
 };
-// const admin2 = function hasRole(roles: string | string[]) {
-//   return async function (req: Request, res: Response, next: NextFunction) {
-//     const user = await User.findOne({ where: { id: req.session.user_id } });
-//     if (user) {
-//       console.log("user:", user)
-//       if (user.role === "admin") {
-//         next();
-//       }
-//     } else {
-//     res.redirect("/login")
-//     console.log("wrong stufff")
-//     }
-//   };
-// };
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -170,26 +147,13 @@ app.get("/logout", (req, res) => {
     req.session.user_id = null;
     res.redirect("/login");
 });
-// app.patch("/todo/:id/edit", async(req: Request, res: Response) => {
-//     const { id } = req.params;
-//     return User.findById(id)
-//     .then((user) => {
-//         if(user){
-//             user.set(req.body.todo)
-//             return user
-//                 .save()
-//                 .then((user)=> res.status(200).json({user}))
-//                 .catch((error)=> res.status(400).json({ error }))
-//         }
-//         else{
-//             res.status(404).json({ message: 'Not Found'})
-//         }
-//     })
-//     .catch((error)=>{
-//         res.status(500).json({error})
-//     })
-//     res.redirect("/todo");
-// });
-app.listen(port, () => {
-    console.log(`Started Server On port ${port}`);
+//You can see we use passport.authenticate() which accepts 2 arguments, first one is the "strategy" we want to use i.e Google in our case, the second is an object that defines the scope. Scopes are the pieces of data that we want from the user's account. 
+app.get("/google", passport_1.default.authenticate("google", {
+    scope: ["email", "profile"],
+}));
+app.get("/google/redirect", passport_1.default.authenticate("google"), (req, res) => {
+    res.send("callback route");
+});
+app.listen(secrets_1.PORT, () => {
+    console.log(`Started Server On port ${secrets_1.PORT}`);
 });
