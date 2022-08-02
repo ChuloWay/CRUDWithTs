@@ -37,6 +37,9 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 const sessionConfig = {
   secret: "tsdemo",
@@ -182,8 +185,9 @@ app.get("/google", passport.authenticate("google", {
 })
 );
 
-app.get("/google/redirect", passport.authenticate("google"),(req: Request, res: Response)=>{
-  res.send("callback route");
+app.get("/google/redirect", passport.authenticate("google", { failureRedirect: "/"})
+,(req: Request, res: Response)=>{
+  res.send("callback route called");
 })
 
 app.listen(PORT, () => {

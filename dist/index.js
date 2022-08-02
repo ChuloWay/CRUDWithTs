@@ -26,6 +26,8 @@ app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use((0, method_override_1.default)("_method"));
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
 const sessionConfig = {
     secret: "tsdemo",
     resave: false,
@@ -151,8 +153,8 @@ app.get("/logout", (req, res) => {
 app.get("/google", passport_1.default.authenticate("google", {
     scope: ["email", "profile"],
 }));
-app.get("/google/redirect", passport_1.default.authenticate("google"), (req, res) => {
-    res.send("callback route");
+app.get("/google/redirect", passport_1.default.authenticate("google", { failureRedirect: "/" }), (req, res) => {
+    res.send("callback route called");
 });
 app.listen(secrets_1.PORT, () => {
     console.log(`Started Server On port ${secrets_1.PORT}`);

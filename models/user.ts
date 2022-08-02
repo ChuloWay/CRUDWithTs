@@ -12,6 +12,8 @@ export interface IUser extends Document {
 interface IUserModel extends Model<IUser>{
     // will still modify to get correct return value type
     findAndValidate(user: any , password: any): any
+    serializeUser(): any;
+    deserializeUser(): any;
 }
 
 
