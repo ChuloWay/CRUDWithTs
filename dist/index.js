@@ -22,18 +22,19 @@ async function run() {
     await (0, mongoose_1.connect)("mongodb://localhost:27017/ts-demo");
 }
 run().catch((err) => console.log(err));
-app.set("views", path_1.default.join(__dirname, "views"));
-app.set("view engine", "ejs");
-app.use((0, method_override_1.default)("_method"));
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use(passport_1.default.initialize());
-app.use(passport_1.default.session());
+;
 const sessionConfig = {
     secret: "tsdemo",
     resave: false,
     saveUninitialized: false,
 };
 app.use((0, express_session_1.default)(sessionConfig));
+app.set("views", path_1.default.join(__dirname, "views"));
+app.set("view engine", "ejs");
+app.use((0, method_override_1.default)("_method"));
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
 const requireLogin = (req, res, next) => {
     if (!req.session.user_id) {
         return res.redirect("/login");
@@ -58,6 +59,7 @@ const admin = async (req, res, next) => {
     }
 };
 app.get("/", (req, res) => {
+    console.log(req.user);
     res.render("index");
 });
 app.get("/register", (req, res) => {
@@ -155,6 +157,7 @@ app.get("/google", passport_1.default.authenticate("google", {
 }));
 app.get("/google/redirect", passport_1.default.authenticate("google", { failureRedirect: "/" }), (req, res) => {
     res.send("callback route called");
+    console.log(req.user);
 });
 app.listen(secrets_1.PORT, () => {
     console.log(`Started Server On port ${secrets_1.PORT}`);
