@@ -10,8 +10,13 @@ const user_1 = __importDefault(require("../../models/user"));
 const GoogleStrategy = passport_google_oauth20_1.default.Strategy;
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(async (user: any, done) => done(null, user._id))
+// passport.deserializeUser(async (_id, done) => done(null, await User.findOne({_id})))
 passport_1.default.serializeUser(async (user, done) => done(null, user._id));
-passport_1.default.deserializeUser(async (_id, done) => done(null, await user_1.default.findOne({ _id })));
+passport_1.default.deserializeUser(async (id, done) => {
+    const user = await user_1.default.findById(id);
+    done(null, user);
+});
 passport_1.default.use(new GoogleStrategy({
     clientID: secrets_1.GOOGLE_CLIENT_ID,
     clientSecret: secrets_1.GOOGLE_CLIENT_SECRET,

@@ -52,7 +52,7 @@ app.use(passport.session());
 
 
 const requireLogin = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session.user_id) {
+  if (!req.user) {
     return res.redirect("/login");
   }
   next();
@@ -87,7 +87,7 @@ app.get("/register", (req: Request, res: Response) => {
 
 app.post("/register", async (req: Request, res: Response) => {
   const { user, password, role } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   const register = new User({
     user,
     password,
@@ -95,7 +95,7 @@ app.post("/register", async (req: Request, res: Response) => {
   });
   await register.save();
   req.session.user_id = register._id;
-  console.log(req.session);
+  // console.log(req.session);
   res.redirect("/new");
 });
 
@@ -116,11 +116,12 @@ app.post("/login", async (req: Request, res: Response) => {
 
 app.get("/user", requireLogin, admin, async (req: Request, res: Response) => {
   const users = await User.find().populate("todos");
-  console.log(users);
+  // console.log(users);
   res.render("user", { users });
 });
 
 app.get("/new", requireLogin, (req: Request, res: Response) => {
+  console.log(req.session)
   res.render("new");
 });
 
@@ -136,14 +137,14 @@ app.post("/new", async (req: Request, res: Response) => {
     newTodo.user = userTask;
     await userTask.save();
     await newTodo.save();
-    console.log(userTask);
+    // console.log(userTask);
   }
   res.redirect("/todo");
 });
 
 app.get("/todo", requireLogin, async (req: Request, res: Response) => {
   const data = await User.findById(req.session.user_id).populate("todos");
-  console.dir(req.user);
+  // console.dir(req.user);
   res.render("todo", { data });
 });
 
@@ -190,7 +191,8 @@ app.get("/google", passport.authenticate("google", {
 
 app.get("/google/redirect", passport.authenticate("google", { failureRedirect: "/"})
 ,(req: Request, res: Response)=>{
-  res.send("callback route called");
+  // res.send("callback route called");
+  res.render("new")
   console.log(req.user);
 })
 

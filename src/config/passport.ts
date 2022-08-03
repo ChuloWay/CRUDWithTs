@@ -9,8 +9,16 @@ const GoogleStrategy = passportGoogle.Strategy;
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
 
+// passport.serializeUser(async (user: any, done) => done(null, user._id))
+// passport.deserializeUser(async (_id, done) => done(null, await User.findOne({_id})))
+
 passport.serializeUser(async (user: any, done) => done(null, user._id))
-passport.deserializeUser(async (_id, done) => done(null, await User.findOne({_id})))
+
+
+  passport.deserializeUser(async (id, done) => {
+    const user = await User.findById(id);
+    done(null, user);
+  });
 
 passport.use(
     new GoogleStrategy(

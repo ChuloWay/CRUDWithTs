@@ -36,7 +36,7 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 const requireLogin = (req, res, next) => {
-    if (!req.session.user_id) {
+    if (!req.user) {
         return res.redirect("/login");
     }
     next();
@@ -67,7 +67,7 @@ app.get("/register", (req, res) => {
 });
 app.post("/register", async (req, res) => {
     const { user, password, role } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const register = new user_1.default({
         user,
         password,
@@ -75,7 +75,7 @@ app.post("/register", async (req, res) => {
     });
     await register.save();
     req.session.user_id = register._id;
-    console.log(req.session);
+    // console.log(req.session);
     res.redirect("/new");
 });
 app.get("/login", (req, res) => {
@@ -94,10 +94,11 @@ app.post("/login", async (req, res) => {
 });
 app.get("/user", requireLogin, admin, async (req, res) => {
     const users = await user_1.default.find().populate("todos");
-    console.log(users);
+    // console.log(users);
     res.render("user", { users });
 });
 app.get("/new", requireLogin, (req, res) => {
+    console.log(req.session);
     res.render("new");
 });
 app.post("/new", async (req, res) => {
@@ -112,13 +113,13 @@ app.post("/new", async (req, res) => {
         newTodo.user = userTask;
         await userTask.save();
         await newTodo.save();
-        console.log(userTask);
+        // console.log(userTask);
     }
     res.redirect("/todo");
 });
 app.get("/todo", requireLogin, async (req, res) => {
     const data = await user_1.default.findById(req.session.user_id).populate("todos");
-    console.dir(req.user);
+    // console.dir(req.user);
     res.render("todo", { data });
 });
 app.get("/todo/:id", async (req, res) => {
@@ -156,7 +157,8 @@ app.get("/google", passport_1.default.authenticate("google", {
     scope: ["email", "profile"],
 }));
 app.get("/google/redirect", passport_1.default.authenticate("google", { failureRedirect: "/" }), (req, res) => {
-    res.send("callback route called");
+    // res.send("callback route called");
+    res.render("new");
     console.log(req.user);
 });
 app.listen(secrets_1.PORT, () => {
