@@ -29,6 +29,7 @@ declare module "express-session" {
   }
 }
 
+
 interface SessionData {
   cookie: Cookie;
 };
@@ -130,14 +131,17 @@ app.post("/new", async (req: Request, res: Response) => {
   const newTodo: any = new Todo({
     todo,
   });
-  newTodo.save();
+  // if(req.user){
+
+  //   newTodo.user = req.user._id;
+  // }
   const userTask = await User.findById(req.session.user_id);
   if (userTask) {
     userTask.todos.push(newTodo);
     newTodo.user = userTask;
     await userTask.save();
     await newTodo.save();
-    // console.log(userTask);
+    console.log(userTask);
   }
   res.redirect("/todo");
 });
@@ -150,13 +154,13 @@ app.get("/todo", requireLogin, async (req: Request, res: Response) => {
 
 app.get("/todo/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await Todo.findById(id);
+  const result = await Todo.findById(id).populate("user");
   res.render("show", { result });
 });
 
 app.get("/todo/:id/edit", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await Todo.findById(id);
+  const result = await Todo.findById(id).populate("user");
   res.render("edit", { result });
 });
 
@@ -192,8 +196,9 @@ app.get("/google", passport.authenticate("google", {
 app.get("/google/redirect", passport.authenticate("google", { failureRedirect: "/"})
 ,(req: Request, res: Response)=>{
   // res.send("callback route called");
-  res.render("new")
-  console.log(req.user);
+  req.session.user_id = req.user
+  res.render("new") 
+  console.log("this is the user :" , req.session);
 })
 
 app.listen(PORT, () => {

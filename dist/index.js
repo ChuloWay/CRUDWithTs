@@ -106,14 +106,16 @@ app.post("/new", async (req, res) => {
     const newTodo = new todo_1.default({
         todo,
     });
-    newTodo.save();
+    // if(req.user){
+    //   newTodo.user = req.user._id;
+    // }
     const userTask = await user_1.default.findById(req.session.user_id);
     if (userTask) {
         userTask.todos.push(newTodo);
         newTodo.user = userTask;
         await userTask.save();
         await newTodo.save();
-        // console.log(userTask);
+        console.log(userTask);
     }
     res.redirect("/todo");
 });
@@ -124,12 +126,12 @@ app.get("/todo", requireLogin, async (req, res) => {
 });
 app.get("/todo/:id", async (req, res) => {
     const { id } = req.params;
-    const result = await todo_1.default.findById(id);
+    const result = await todo_1.default.findById(id).populate("user");
     res.render("show", { result });
 });
 app.get("/todo/:id/edit", async (req, res) => {
     const { id } = req.params;
-    const result = await todo_1.default.findById(id);
+    const result = await todo_1.default.findById(id).populate("user");
     res.render("edit", { result });
 });
 app.patch("/todo/:id/edit", async (req, res) => {
@@ -158,8 +160,9 @@ app.get("/google", passport_1.default.authenticate("google", {
 }));
 app.get("/google/redirect", passport_1.default.authenticate("google", { failureRedirect: "/" }), (req, res) => {
     // res.send("callback route called");
+    req.session.user_id = req.user;
     res.render("new");
-    console.log(req.user);
+    console.log("this is the user :", req.session);
 });
 app.listen(secrets_1.PORT, () => {
     console.log(`Started Server On port ${secrets_1.PORT}`);
