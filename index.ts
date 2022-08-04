@@ -1,12 +1,15 @@
-import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express, { Express, Request, Response, NextFunction } from "express";
+import { PORT } from "./src/utils/secrets";
+import passport from "passport"
 import path from "path";
 import methodOverride from "method-override";
 import { model, Schema, Document, connect } from "mongoose";
 import User from "./models/user";
 import Todo from "./models/todo";
 import session, { Cookie } from "express-session";
-dotenv.config();
+import "./src/config/passport";
 
 // Add Passport in other branch [ to make use of google Auth]
 // refactor codes using express router
@@ -27,14 +30,10 @@ declare module "express-session" {
   }
 }
 
+
 interface SessionData {
   cookie: Cookie;
-}
-
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
-app.use(methodOverride("_method"));
-app.use(express.urlencoded({ extended: true }));
+};
 
 const sessionConfig = {
   secret: "tsdemo",
@@ -44,8 +43,18 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+app.use(methodOverride("_method"));
+app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+
 const requireLogin = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session.user_id) {
+  if (!req.user) {
     return res.redirect("/login");
   }
   next();
@@ -69,6 +78,7 @@ const admin = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 app.get("/", (req: Request, res: Response) => {
+  console.log(req.user);
   res.render("index");
 });
 
@@ -78,7 +88,7 @@ app.get("/register", (req: Request, res: Response) => {
 
 app.post("/register", async (req: Request, res: Response) => {
   const { user, password, role } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   const register = new User({
     user,
     password,
@@ -86,7 +96,7 @@ app.post("/register", async (req: Request, res: Response) => {
   });
   await register.save();
   req.session.user_id = register._id;
-  console.log(req.session);
+  // console.log(req.session);
   res.redirect("/new");
 });
 
@@ -107,11 +117,12 @@ app.post("/login", async (req: Request, res: Response) => {
 
 app.get("/user", requireLogin, admin, async (req: Request, res: Response) => {
   const users = await User.find().populate("todos");
-  console.log(users);
+  // console.log(users);
   res.render("user", { users });
 });
 
 app.get("/new", requireLogin, (req: Request, res: Response) => {
+  console.log(req.session)
   res.render("new");
 });
 
@@ -120,7 +131,10 @@ app.post("/new", async (req: Request, res: Response) => {
   const newTodo: any = new Todo({
     todo,
   });
-  newTodo.save();
+  // if(req.user){
+
+  //   newTodo.user = req.user._id;
+  // }
   const userTask = await User.findById(req.session.user_id);
   if (userTask) {
     userTask.todos.push(newTodo);
@@ -134,19 +148,19 @@ app.post("/new", async (req: Request, res: Response) => {
 
 app.get("/todo", requireLogin, async (req: Request, res: Response) => {
   const data = await User.findById(req.session.user_id).populate("todos");
-  console.dir(req.user);
+  // console.dir(req.user);
   res.render("todo", { data });
 });
 
 app.get("/todo/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await Todo.findById(id);
+  const result = await Todo.findById(id).populate("user");
   res.render("show", { result });
 });
 
 app.get("/todo/:id/edit", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await Todo.findById(id);
+  const result = await Todo.findById(id).populate("user");
   res.render("edit", { result });
 });
 
@@ -173,6 +187,20 @@ app.get("/logout", (req: Request, res: Response)=> {
   res.redirect("/login")
 })
 
-app.listen(port, () => {
-  console.log(`Started Server On port ${port}`);
+//You can see we use passport.authenticate() which accepts 2 arguments, first one is the "strategy" we want to use i.e Google in our case, the second is an object that defines the scope. Scopes are the pieces of data that we want from the user's account. 
+app.get("/google", passport.authenticate("google", {
+  scope: ["email", "profile"],
+})
+);
+
+app.get("/google/redirect", passport.authenticate("google", { failureRedirect: "/"})
+,(req: Request, res: Response)=>{
+  // res.send("callback route called");
+  req.session.user_id = req.user
+  res.render("new") 
+  console.log("this is the user :" , req.session);
+})
+
+app.listen(PORT, () => {
+  console.log(`Started Server On port ${PORT}`);
 });

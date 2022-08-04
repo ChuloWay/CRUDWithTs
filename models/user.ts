@@ -5,13 +5,17 @@ import bcrypt from 'bcrypt';
 export interface IUser extends Document {
     user : string;
     password: string;
+    email: string;
+    googleId: string;
     role : string;
     todos : string[];
 };
 
 interface IUserModel extends Model<IUser>{
     // will still modify to get correct return value type
-    findAndValidate(user: any , password: any): any
+    findAndValidate(user: any , password: any): any;
+    serializeUser(): any;
+    deserializeUser(): any;
 }
 
 
@@ -20,9 +24,15 @@ const UserSchema: Schema = new Schema<IUser>({
         type: String,
         required: true
     },
+    googleId : {
+        type: String,
+    },
+    email : {
+        type: String,
+    },
     password: {
         type:  String,
-        required: [true, 'Cannot Be Empty!']
+        // required: [true, 'Cannot Be Empty!']
     },
     role: {
         type: String,

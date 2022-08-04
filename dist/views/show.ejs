@@ -10,7 +10,12 @@
     <div>
         
     <h1>Task To Be Completed</h1>
-    <h2><%=result.todo%> <br> Author: <%=result.user%></h2>
+    <h2><%=result.todo%> 
+        <br>
+         Author: <%=result.user.user%>
+         <%=console.log(result)%> 
+    
+    </h2>
     </div>
 
     <form action="/todo/<%=result.id%>?_method=DELETE" method="post">

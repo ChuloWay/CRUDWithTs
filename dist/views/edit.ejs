@@ -7,10 +7,8 @@
     <title>Edit</title>
 </head>
 <body>
-    <h1>Edit Task!</h1>
+    <h1>Edit Task For <%=result.user.user%></h1>
     <form action="/todo/<%=result.id%>/edit?_method=PATCH" method="post">
-        <label for="user">User</label>
-        <input type="text" name="user" id="user" placeholder="<%=result.user%>">
         <label for="task">Task</label>
         <input type="text" name="todo" id="todo" placeholder="<%=result.todo%>">
         <button>Submit</button>
